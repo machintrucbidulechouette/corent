@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Corent 3D · Sources</title>
+  <meta name="claude:viewport-fit-sides" content="cover">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,400;0,600;1,400&family=Alegreya+Sans:wght@500;700&family=Grenze:wght@500;600&display=swap">
+  <link rel="stylesheet" href="css/commun.css">
+  <link rel="stylesheet" href="css/site.css">
+</head>
+<body>
+  <div class="page">
+    <header class="entete conteneur">
+      <a class="marque" href="index.html">Corent 3D</a>
+      <nav class="nav" aria-label="Navigation principale">
+        <a href="index.html">Accueil</a>
+        <a href="jeu.html">Visite</a>
+        <a href="a-propos.html" aria-current="page">Sources</a>
+      </nav>
+    </header>
+  </div>
+  <div class="bandes" aria-hidden="true"></div>
+
+  <main class="page">
+    <section class="section conteneur">
+      <p class="etiquette">Méthode</p>
+      <h2>Comment la ville a été restituée</h2>
+      <div class="lecture" style="display:grid;gap:14px">
+        <p>Tout le paysage est généré en code au chargement de la page : relief du plateau et de la plaine, bâtiments, végétation, personnages et textures. Aucun modèle 3D ni aucune image n’est téléchargé.</p>
+        <p>La disposition reprend les grandes lignes connues du site : un sanctuaire central à palissade et galerie, un édifice à gradins voisin, une place publique, des quartiers d’habitation et d’artisanat le long de rues empierrées. Les maisons sont placées par un algorithme et ne correspondent pas à des bâtiments fouillés un par un.</p>
+        <p>Les couleurs des enduits, la forme des toitures et le tracé du rempart sont des hypothèses inspirées des restitutions publiées, en particulier celles diffusées par le Conseil départemental du Puy-de-Dôme.</p>
+      </div>
+    </section>
+
+    <section class="section conteneur">
+      <div class="deux-colonnes">
+        <div style="display:grid;gap:14px">
+          <p class="etiquette">Bibliographie</p>
+          <h2>Sur l’oppidum de Corent</h2>
+          <ul class="sources">
+            <li>Matthieu Poux (dir.), <em>Corent, voyage au cœur d’une ville gauloise</em>, Errance, 2012.</li>
+            <li>Serge Lewuillon, <em>Gergovie et le pays arverne</em>, Éditions du Patrimoine, 2013.</li>
+            <li>Collectif, <em>Le Musée archéologique de la bataille de Gergovie</em>, Archéologia hors-série n° 30, 2021.</li>
+          </ul>
+        </div>
+        <div style="display:grid;gap:14px">
+          <p class="etiquette">Pour aller plus loin</p>
+          <h2>Sur les Gaulois</h2>
+          <ul class="sources">
+            <li>Jean-Louis Brunaux, <em>Les Gaulois</em>, Tallandier, 2020.</li>
+            <li>Dominique Garcia, <em>Les Gaulois à l’œil nu</em>, CNRS Éditions, 2021.</li>
+            <li>François Malrain, Matthieu Poux, <em>Qui étaient les Gaulois ?</em>, Universcience / La Martinière, 2011.</li>
+            <li>Jean-Louis Brunaux, Nicoby, <em>L’Enquête gauloise</em>, La Découverte / La Revue dessinée, 2017.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section conteneur">
+      <p class="etiquette">En ligne</p>
+      <h2>Ressources</h2>
+      <ul class="sources lecture">
+        <li><a href="https://www.youtube.com/watch?v=NLYAMjh3ALQ" target="_blank" rel="noopener">Visite virtuelle du plateau de Corent (vers 80 av. J.-C.)</a>, Conseil départemental du Puy-de-Dôme.</li>
+        <li><a href="https://musee-gergovie.fr/" target="_blank" rel="noopener">Musée archéologique de la bataille de Gergovie</a>, qui propose des visites guidées du site de Corent.</li>
+        <li><a href="http://www.luern.fr/" target="_blank" rel="noopener">LUERN</a>, rapports de fouilles sur le site de Corent.</li>
+        <li><a href="https://www.court-jus.com/fiche-film/revivre-corrent/" target="_blank" rel="noopener">Revivre Corent</a>, expérience immersive de Court-Jus Production (3D : Nicolas Cayré).</li>
+        <li><a href="https://enseignants.inrap.fr/" target="_blank" rel="noopener">Inrap, ressources pour les enseignants</a>.</li>
+      </ul>
+    </section>
+
+    <section class="section conteneur">
+      <p class="etiquette">Crédits techniques</p>
+      <h2>Fabrication</h2>
+      <ul class="sources lecture">
+        <li>Moteur 3D : <a href="https://threejs.org/" target="_blank" rel="noopener">Three.js</a> r184 (licence MIT).</li>
+        <li>Polices : Grenze, Alegreya et Alegreya Sans (Google Fonts, licence SIL Open Font).</li>
+        <li>Site statique en HTML, CSS et JavaScript, sans outil de compilation.</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="page">
+    <div class="pied conteneur">
+      <span>Corent 3D · ville gauloise interactive</span>
+      <a href="jeu.html">Entrer dans la ville</a>
+    </div>
+  </footer>
+</body>
+</html>

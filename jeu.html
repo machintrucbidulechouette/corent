@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Corent 3D · Visite</title>
+  <meta name="description" content="Promenez-vous dans la ville gauloise de Corent, vers 80 av. J.-C.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,400;0,600;1,400&family=Alegreya+Sans:wght@500;700&family=Grenze:wght@500;600&display=swap">
+  <link rel="stylesheet" href="css/commun.css">
+  <link rel="stylesheet" href="css/jeu.css">
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.184.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.184.0/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+  <canvas id="scene" aria-label="Vue 3D de la ville de Corent"></canvas>
+
+  <!-- chargement -->
+  <section id="chargement" class="ecran">
+    <div class="chargement-boite">
+      <p class="etiquette">Oppidum arverne · vers 80 av. J.-C.</p>
+      <h1>Corent</h1>
+      <div class="chargement-jauge"><span id="chargement-barre"></span></div>
+      <p id="chargement-etape" class="chargement-etape">Ouverture des portes…</p>
+    </div>
+  </section>
+
+  <!-- choix du personnage -->
+  <section id="choix" class="ecran ecran-voile" hidden>
+    <div class="choix-boite">
+      <p class="etiquette">Avant d’entrer</p>
+      <h2>Qui êtes-vous ?</h2>
+      <p class="choix-intro">Choisissez un habitant de Corent. Une dizaine de lieux sont signalés par un anneau de bronze : approchez-vous et appuyez sur <kbd>E</kbd> pour les découvrir.</p>
+      <div id="choix-liste" class="choix-liste"></div>
+      <div class="choix-pied">
+        <button id="choix-entrer" class="bouton" type="button">Entrer dans la ville</button>
+        <a class="lien-retour" href="index.html">Retour à l’accueil</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- interface de jeu -->
+  <div id="hud" hidden>
+    <div class="hud-haut-gauche">
+      <p id="hud-nom" class="hud-nom"></p>
+      <div class="hud-compteur">
+        <span class="etiquette">Lieux découverts</span>
+        <strong id="hud-compteur">0 / 0</strong>
+        <span class="compteur-jauge"><span id="hud-compteur-barre"></span></span>
+      </div>
+    </div>
+
+    <div class="boussole" aria-hidden="true">
+      <div id="boussole-rail" class="boussole-rail"></div>
+      <span class="boussole-index"></span>
+    </div>
+
+    <canvas id="minicarte" class="minicarte" width="200" height="200" aria-label="Mini-carte"></canvas>
+
+    <div id="hud-aide" class="hud-aide">
+      <span><kbd>Z</kbd><kbd>Q</kbd><kbd>S</kbd><kbd>D</kbd> marcher</span>
+      <span><kbd>Maj</kbd> courir</span>
+      <span><kbd>Espace</kbd> sauter</span>
+      <span><kbd>V</kbd> vue</span>
+      <span><kbd>M</kbd> carte</span>
+      <span><kbd>H</kbd> masquer l’aide</span>
+      <span><kbd>Échap</kbd> pause</span>
+    </div>
+
+    <div id="invite" class="invite" hidden>
+      <kbd>E</kbd>
+      <span>Découvrir <strong id="invite-titre"></strong></span>
+    </div>
+
+    <div id="toast" class="toast" role="status" hidden></div>
+    <span class="viseur" aria-hidden="true"></span>
+  </div>
+
+  <!-- panneau d'un lieu -->
+  <aside id="panneau" class="panneau" hidden aria-labelledby="panneau-titre">
+    <div class="bandes"></div>
+    <div class="panneau-corps">
+      <p id="panneau-epoque" class="etiquette"></p>
+      <h2 id="panneau-titre"></h2>
+      <div id="panneau-texte" class="panneau-texte"></div>
+      <div class="panneau-observer">
+        <span class="etiquette">À observer</span>
+        <p id="panneau-observer"></p>
+      </div>
+      <button id="panneau-fermer" class="bouton" type="button">Reprendre la visite <kbd>E</kbd></button>
+    </div>
+  </aside>
+
+  <!-- grande carte -->
+  <section id="carte-plein" class="carte-plein" hidden>
+    <div class="carte-entete">
+      <h2>Plan de Corent</h2>
+      <span><kbd>M</kbd> fermer</span>
+    </div>
+    <canvas id="grande-carte" class="grande-carte" width="1080" height="840"></canvas>
+  </section>
+
+  <!-- pause -->
+  <section id="pause" class="ecran ecran-voile" hidden>
+    <div class="pause-boite">
+      <p class="etiquette">Pause</p>
+      <h2>La visite est suspendue</h2>
+      <button id="pause-reprendre" class="bouton" type="button">Reprendre</button>
+      <div class="reglages">
+        <label class="reglage" for="reglage-heure">
+          <span>Heure du jour <strong id="reglage-heure-valeur">16 h 00</strong></span>
+          <input id="reglage-heure" type="range" min="6" max="21" step="0.25" value="16">
+        </label>
+        <label class="reglage" for="reglage-sensibilite">
+          <span>Sensibilité de la souris</span>
+          <input id="reglage-sensibilite" type="range" min="8" max="45" step="1" value="22">
+        </label>
+        <label class="reglage reglage-case" for="reglage-ombres">
+          <input id="reglage-ombres" type="checkbox" checked>
+          <span>Ombres portées</span>
+        </label>
+        <button id="reglage-vue" class="bouton bouton-discret" type="button">Passer en vue subjective</button>
+        <button id="reglage-reinit" class="bouton bouton-discret" type="button">Remettre la visite à zéro</button>
+      </div>
+      <a class="lien-retour" href="index.html">Quitter et revenir à l’accueil</a>
+    </div>
+  </section>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

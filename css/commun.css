@@ -1,0 +1,75 @@
+/* commun.css — identité visuelle partagée par toutes les pages.
+   Concept : l'enduit des murs de Corent. Fond de bois brûlé, texte couleur chaux,
+   ocre et rouge des bandes peintes, bronze pour ce qui s'active. */
+:root {
+  --bois: #1e1915;          /* fond : bois noirci */
+  --bois-2: #2a231d;        /* surfaces */
+  --bois-3: #3a3028;        /* bordures, séparations */
+  --chaux: #efe4cf;         /* texte principal */
+  --chaux-2: #b9ab93;       /* texte secondaire */
+  --ocre: #d4a85a;          /* enduit ocre */
+  --rouge: #9b3a27;         /* bande rouge */
+  --bronze: #e0a948;        /* actions, éléments actifs */
+  --font-titre: "Grenze", "Palatino Linotype", Palatino, Georgia, serif;
+  --font-texte: "Alegreya", Georgia, "Times New Roman", serif;
+  --font-ui: "Alegreya Sans", "Segoe UI", system-ui, sans-serif;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+
+html { background: var(--bois); }
+body {
+  margin: 0;
+  background: var(--bois);
+  color: var(--chaux);
+  font-family: var(--font-texte);
+  font-size: 1.0625rem;
+  line-height: 1.6;
+}
+
+h1, h2, h3 { font-family: var(--font-titre); font-weight: 600; line-height: 1.1; text-wrap: balance; margin: 0; }
+
+a { color: var(--ocre); text-underline-offset: 3px; }
+a:hover { color: var(--bronze); }
+
+:focus-visible { outline: 2px solid var(--bronze); outline-offset: 3px; }
+
+/* bandeau peint : motif des murs enduits de la place */
+.bandes {
+  height: 14px;
+  background: linear-gradient(to bottom,
+    var(--rouge) 0 30%, var(--ocre) 30% 44%, #a5583a 44% 52%, var(--ocre) 52% 66%, var(--rouge) 66% 100%);
+}
+
+.bouton {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.6em;
+  font-family: var(--font-ui); font-weight: 700; font-size: 1.05rem; letter-spacing: 0.03em;
+  color: var(--bois); background: var(--bronze);
+  border: 0; border-radius: 3px; padding: 0.8em 1.5em;
+  text-decoration: none; cursor: pointer;
+  box-shadow: inset 0 -3px 0 rgba(0,0,0,0.25);
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+.bouton:hover { background: #f0bb5a; color: var(--bois); transform: translateY(-1px); }
+.bouton-discret {
+  background: transparent; color: var(--chaux); box-shadow: inset 0 0 0 1px var(--bois-3);
+}
+.bouton-discret:hover { background: var(--bois-2); color: var(--chaux); }
+
+kbd {
+  display: inline-block; min-width: 1.9em; padding: 0.15em 0.45em;
+  font-family: var(--font-ui); font-weight: 700; font-size: 0.85em; text-align: center;
+  color: var(--chaux); background: var(--bois-3);
+  border-radius: 3px; box-shadow: inset 0 -2px 0 rgba(0,0,0,0.45);
+}
+
+.etiquette {
+  font-family: var(--font-ui); font-weight: 700; font-size: 0.78rem;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--ocre);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
