@@ -1,4 +1,4 @@
-// plan.js — plan général de l'oppidum : grands monuments, rues, rempart et lots d'habitation.
+// plan.js : plan général de l'oppidum : grands monuments, rues, rempart et lots d'habitation.
 // La disposition s'inspire des restitutions publiées (sanctuaire central, place, édifice
 // à gradins, quartiers denses) mais reste une interprétation libre.
 import { aleatoire } from './bruit.js';
@@ -73,7 +73,7 @@ export function traceRempart() {
 
 /**
  * Lots d'habitation générés à partir d'une graine.
- * Chaque lot : { x, z, rot, l, w, type } — type : maison, grenier, atelier, enclos.
+ * Chaque lot : { x, z, rot, l, w, type }, où type vaut maison, grenier, atelier ou enclos.
  */
 export function genererLots() {
   const alea = aleatoire(2026);

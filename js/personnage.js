@@ -1,4 +1,4 @@
-// personnage.js — habitants de Corent jouables, modelés et animés en code.
+// personnage.js : habitants de Corent jouables, modelés et animés en code.
 import * as THREE from 'three';
 import { etoffe } from './textures.js';
 

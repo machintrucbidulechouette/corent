@@ -1,4 +1,4 @@
-// vegetation.js — arbres et arbustes. Sur le plateau : feuillage en cartes de feuilles animées par le vent.
+// vegetation.js : arbres et arbustes. Sur le plateau : feuillage en cartes de feuilles animées par le vent.
 // Sur les versants : arbres simplifiés, vus de loin.
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';

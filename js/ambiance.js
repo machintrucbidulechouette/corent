@@ -1,4 +1,4 @@
-// ambiance.js — ciel, soleil, étoiles, brouillard et heure du jour.
+// ambiance.js : ciel, soleil, étoiles, brouillard et heure du jour.
 import * as THREE from 'three';
 import { Sky } from 'three/addons/objects/Sky.js';
 import { aleatoire } from './bruit.js';

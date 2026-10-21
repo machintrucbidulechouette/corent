@@ -1,4 +1,4 @@
-// relief.js — forme du plateau de Corent et du paysage alentour.
+// relief.js : forme du plateau de Corent et du paysage alentour.
 // Repère : 1 unité = 1 mètre, x vers l'est, z vers le sud, y vers le haut.
 // Le dessus du plateau est à y ≈ 0 ; la plaine de l'Allier est environ 170 m plus bas.
 import { fbm, lisser } from './bruit.js';

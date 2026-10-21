@@ -1,4 +1,4 @@
-// donnees.js — contenus des points d'intérêt (textes de médiation).
+// donnees.js : contenus des points d'intérêt (textes de médiation).
 // Les faits viennent des fouilles publiées sur Corent ; les détails de forme sont des restitutions.
 
 export const LIEUX = [

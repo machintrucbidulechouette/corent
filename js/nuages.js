@@ -1,4 +1,4 @@
-// nuages.js — couche de cumulus qui défile lentement, éclairée selon la position du soleil.
+// nuages.js : couche de cumulus qui défile lentement, éclairée selon la position du soleil.
 import * as THREE from 'three';
 
 export class Nuages {

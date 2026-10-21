@@ -1,4 +1,4 @@
-// cinematique.js — plans de caméra propres à chaque lieu, avec sous-titres et possibilité de passer.
+// cinematique.js : plans de caméra propres à chaque lieu, avec sous-titres et possibilité de passer.
 import * as THREE from 'three';
 import { hauteurSol } from './relief.js';
 

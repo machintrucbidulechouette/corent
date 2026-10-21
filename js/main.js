@@ -1,4 +1,4 @@
-// main.js — point d'entrée du jeu : chargement, choix du personnage, boucle, interface, cinématiques, son.
+// main.js : point d'entrée du jeu : chargement, choix du personnage, boucle, interface, cinématiques, son.
 import * as THREE from 'three';
 import { creerTextures } from './textures.js';
 import { creerMateriaux } from './materiaux.js';
@@ -23,6 +23,7 @@ const $ = (id) => document.getElementById(id);
 const CLE_DECOUVERTES = 'corent-lieux-decouverts';
 const CLE_NARRATION = 'corent-narration';
 const CLE_REPLI = 'corent-repli-qualite';
+const CLE_COMPTEUR = 'corent-compteur';
 
 const etat = { enJeu: false, panneau: null, carte: false, aide: true, lieuProche: null, cinema: false };
 
@@ -225,6 +226,11 @@ document.addEventListener('keydown', (e) => {
     case 'KeyV': basculerVue(); break;
     case 'KeyM': basculerCarte(); break;
     case 'KeyN': son.basculerCoupure(); majBoutonSon(); toast(son.coupe ? 'Son coupé' : 'Son rétabli'); break;
+    case 'KeyF':
+      compteur.visible = !compteur.visible;
+      $('hud-ips').hidden = !compteur.visible;
+      ecrire(CLE_COMPTEUR, compteur.visible ? 'oui' : 'non');
+      break;
     case 'KeyH':
       etat.aide = !etat.aide;
       $('hud-aide').hidden = !etat.aide;
@@ -398,6 +404,20 @@ function boucle() {
   }
   rendu.rendre();
   surveillerFluidite(dt);
+  majCompteurIps(maintenant);
+}
+
+/** Compteur d'images par seconde, discret, en haut à droite (touche F pour l'afficher ou le masquer). */
+const compteur = { visible: lire(CLE_COMPTEUR, 'oui') === 'oui', images: 0, debut: 0 };
+$('hud-ips').hidden = !compteur.visible;
+function majCompteurIps(maintenant) {
+  compteur.images++;
+  if (!compteur.debut) compteur.debut = maintenant;
+  const ecoule = maintenant - compteur.debut;
+  if (ecoule < 500) return;
+  if (compteur.visible) $('hud-ips').textContent = `${Math.round((compteur.images * 1000) / ecoule)} ips`;
+  compteur.images = 0;
+  compteur.debut = maintenant;
 }
 
 /**

@@ -1,4 +1,4 @@
-// audio.js — paysage sonore spatialisé. Sons synthétisés (sons.js) ou, s'ils sont fournis,
+// audio.js : paysage sonore spatialisé. Sons synthétisés (sons.js) ou, s'ils sont fournis,
 // vrais enregistrements déclarés dans audio/sons.json.
 import { fabriquerSons, reponseImpulsionnelle } from './sons.js';
 import { distPlateau } from './relief.js';

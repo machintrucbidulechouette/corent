@@ -1,4 +1,4 @@
-/* site.css — pages d'accueil et « à propos ». Mise en page : une colonne de lecture,
+/* site.css : pages d'accueil et « à propos ». Mise en page : une colonne de lecture,
    un bandeau d'ouverture sur la silhouette des toits, des sections séparées par le motif peint. */
 .page { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
 .conteneur { max-width: 1080px; margin: 0 auto; }

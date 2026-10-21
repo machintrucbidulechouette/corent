@@ -1,4 +1,4 @@
-// materiaux.js — palette de matériaux PBR partagée par tous les bâtiments.
+// materiaux.js : palette de matériaux PBR partagée par tous les bâtiments.
 import * as THREE from 'three';
 
 export function creerMateriaux(tx) {
@@ -31,7 +31,7 @@ export function creerMateriaux(tx) {
     tissuBleu: std({ color: 0x4c5f78, side: THREE.DoubleSide, roughness: 0.95 }),
     foin: pbr(tx.chaume, { color: 0xe6d29a }, 1),
     fosse: std({ color: 0x2a221c }),
-    braise: new THREE.MeshStandardMaterial({ color: 0x331100, emissive: 0xff5a14, emissiveIntensity: 3 }),
+    braise: new THREE.MeshStandardMaterial({ color: 0x331100, emissive: 0xff5a14, emissiveIntensity: 9 }),
   };
   m.fosse.userData.sansOmbre = true;
   m.braise.userData.sansOmbre = true;

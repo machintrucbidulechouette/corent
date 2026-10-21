@@ -1,4 +1,4 @@
-# Corent 3D — v2
+# Corent 3D v2
 
 Visite interactive en 3D de l'oppidum de Corent (Puy-de-Dôme), ville gauloise des Arvernes, vers 80 av. J.-C.
 Le joueur incarne un habitant et se promène dans la ville : sanctuaire, hémicycle d'assemblée, place publique,
@@ -16,6 +16,7 @@ Aucun outil de compilation. Tout est généré en code au chargement : relief, b
 - Sol mélangé herbe / terre / roche dans le shader, sans répétition visible.
 - Herbe dense calculée sur la carte graphique, qui ondule au vent.
 - Arbres à feuillage en cartes de feuilles, animés par le vent. Nuages qui défilent, étoiles la nuit.
+- Compteur d'images par seconde discret en haut à droite (touche `F`).
 - Trois niveaux de qualité (basse, moyenne, haute) dans le menu pause. Si la carte graphique refuse un shader, le jeu redescend seul d'un cran.
 
 **Vie**
@@ -63,6 +64,7 @@ Pousser le contenu du dossier à la racine du dépôt, puis dans *Settings → P
 | Vue 1re / 3e personne | `V` |
 | Plan de la ville | `M` |
 | Couper le son | `N` |
+| Afficher ou masquer le compteur d'images par seconde | `F` |
 | Recul de la caméra | molette |
 | Masquer l'aide | `H` |
 | Pause et réglages | `Échap` |

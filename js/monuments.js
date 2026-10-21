@@ -1,4 +1,4 @@
-// monuments.js — le centre monumental : sanctuaire, édifice à gradins, place publique, rempart et porte.
+// monuments.js : le centre monumental : sanctuaire, édifice à gradins, place publique, rempart et porte.
 import * as THREE from 'three';
 import { boite, cylindre, toit, appentis, talus } from './geometrie.js';
 import { hauteurSol } from './relief.js';

@@ -1,4 +1,4 @@
-// herbe.js — champ de brins d'herbe calculé sur la carte graphique.
+// herbe.js : champ de brins d'herbe calculé sur la carte graphique.
 // Les brins sont placés dans un carré qui suit le joueur ; leur hauteur au sol et leur densité
 // sont lues dans une texture précalculée (relief + zones sans herbe : rues, bâtiments, places).
 import * as THREE from 'three';

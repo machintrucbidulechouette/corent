@@ -1,4 +1,4 @@
-// village.js — assemble toute la ville et renvoie les maillages, les obstacles et les repères utiles.
+// village.js : assemble toute la ville et renvoie les maillages, les obstacles et les repères utiles.
 import * as THREE from 'three';
 import { Assembleur } from './geometrie.js';
 import { Collisions } from './collisions.js';

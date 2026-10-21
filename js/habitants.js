@@ -1,4 +1,4 @@
-// habitants.js — la ville vivante : passants dans les rues, forgerons, marchands, animaux.
+// habitants.js : la ville vivante : passants dans les rues, forgerons, marchands, animaux.
 import * as THREE from 'three';
 import { Personnage } from './personnage.js';
 import { RUES, PLACE } from './plan.js';

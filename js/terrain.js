@@ -1,4 +1,4 @@
-// terrain.js — sol du plateau (mélange herbe / terre / roche dans le shader) et paysage lointain.
+// terrain.js : sol du plateau (mélange herbe / terre / roche dans le shader) et paysage lointain.
 import * as THREE from 'three';
 import { hauteurSol, distPlateau } from './relief.js';
 import { fbm, lisser } from './bruit.js';

@@ -1,4 +1,4 @@
-// sons.js — fabrication des sons par synthèse, hors temps réel (OfflineAudioContext).
+// sons.js : fabrication des sons par synthèse, hors temps réel (OfflineAudioContext).
 // Chaque recette produit un AudioBuffer : boucles d'ambiance ou bruitages ponctuels.
 // Pas de musique : uniquement des sons que l'on pouvait entendre à Corent vers 80 av. J.-C.
 

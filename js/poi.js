@@ -1,4 +1,4 @@
-// poi.js — balises des points d'intérêt et détection de proximité.
+// poi.js : balises des points d'intérêt et détection de proximité.
 import * as THREE from 'three';
 import { LIEUX } from './donnees.js';
 import { hauteurSol, distPlateau } from './relief.js';

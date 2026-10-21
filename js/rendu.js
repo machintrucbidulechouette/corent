@@ -1,4 +1,4 @@
-// rendu.js — moteur de rendu : post-traitement (occlusion ambiante, halo, anti-crénelage),
+// rendu.js : moteur de rendu : post-traitement (occlusion ambiante, halo, anti-crénelage),
 // ombres en cascades, niveaux de qualité et replis automatiques en cas de problème de shader.
 import * as THREE from 'three';
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
@@ -187,7 +187,9 @@ export class Rendu {
         composer.addPass(ao);
         this.ao = ao;
       }
-      this.halo = new UnrealBloomPass(new THREE.Vector2(w / 2, h / 2), 0.18, 0.45, 0.92);
+      // seuil élevé : seuls les braises et le disque solaire brillent. Avec un seuil bas, le ciel et
+      // les murs éclairés (bien au-delà de 1 avant le tone mapping) voilaient toute l'image de blanc.
+      this.halo = new UnrealBloomPass(new THREE.Vector2(w / 2, h / 2), 0.22, 0.3, 6);
       composer.addPass(this.halo);
       composer.addPass(new SMAAPass(w * this.renderer.getPixelRatio(), h * this.renderer.getPixelRatio()));
       composer.addPass(new OutputPass());

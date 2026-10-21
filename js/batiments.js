@@ -1,4 +1,4 @@
-// batiments.js — constructions arvernes : maisons, greniers, ateliers, palissades, objets.
+// batiments.js : constructions arvernes : maisons, greniers, ateliers, palissades, objets.
 // Chaque fonction dépose ses pièces dans l'assembleur `A` et ses obstacles dans `C`.
 import * as THREE from 'three';
 import { boite, cylindre, toit, appentis } from './geometrie.js';

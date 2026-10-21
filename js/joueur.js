@@ -1,4 +1,4 @@
-// joueur.js — déplacements, collisions et caméras (1re et 3e personne).
+// joueur.js : déplacements, collisions et caméras (1re et 3e personne).
 // Les touches sont lues par position physique (event.code) : ZQSD sur AZERTY = WASD sur QWERTY.
 import * as THREE from 'three';
 import { hauteurSol } from './relief.js';

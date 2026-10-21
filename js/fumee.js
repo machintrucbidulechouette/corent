@@ -1,4 +1,4 @@
-// fumee.js — panaches de fumée des forges, des fours et des toits.
+// fumee.js : panaches de fumée des forges, des fours et des toits.
 import * as THREE from 'three';
 
 const PAR_SOURCE = 16;

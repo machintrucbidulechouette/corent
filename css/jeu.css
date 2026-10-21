@@ -1,4 +1,4 @@
-/* jeu.css — interface superposée à la scène 3D. */
+/* jeu.css : interface superposée à la scène 3D. */
 html, body { height: 100%; overflow: hidden; }
 body { font-family: var(--font-ui); }
 
@@ -236,3 +236,9 @@ body { font-family: var(--font-ui); }
 }
 .alerte-qualite p { margin: 0; font-family: var(--font-texte); }
 .alerte-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; }
+
+.hud-ips {
+  position: absolute; top: calc(56px + env(safe-area-inset-top, 0px)); right: max(16px, env(safe-area-inset-right, 0px));
+  font: 500 0.75rem var(--font-ui); font-variant-numeric: tabular-nums; letter-spacing: 0.04em;
+  color: var(--chaux); opacity: 0.55; text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+}

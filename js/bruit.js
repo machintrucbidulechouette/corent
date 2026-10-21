@@ -1,4 +1,4 @@
-// bruit.js — générateur pseudo-aléatoire et bruit 2D déterministes.
+// bruit.js : générateur pseudo-aléatoire et bruit 2D déterministes.
 // Tout le village est généré à partir d'une graine : il est identique à chaque visite.
 
 export function aleatoire(graine = 1) {

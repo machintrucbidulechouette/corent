@@ -1,4 +1,4 @@
-// textures.js — textures peintes en canvas, avec cartes de relief (normales) et de rugosité
+// textures.js : textures peintes en canvas, avec cartes de relief (normales) et de rugosité
 // dérivées automatiquement. Aucun fichier image externe.
 import * as THREE from 'three';
 import { aleatoire, fbm } from './bruit.js';

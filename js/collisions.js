@@ -1,4 +1,4 @@
-// collisions.js — obstacles en 2D (vue de dessus) rangés dans une grille spatiale.
+// collisions.js : obstacles en 2D (vue de dessus) rangés dans une grille spatiale.
 // Le joueur est un cercle ; les bâtiments sont des rectangles orientés, les poteaux des cercles.
 
 const CELLULE = 10;

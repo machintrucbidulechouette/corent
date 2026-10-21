@@ -1,4 +1,4 @@
-// carte.js — mini-carte (coin de l'écran) et grande carte (touche M), dessinées depuis le plan.
+// carte.js : mini-carte (coin de l'écran) et grande carte (touche M), dessinées depuis le plan.
 import { distPlateau } from './relief.js';
 import { RUES, SANCTUAIRE, PLACE, THEATRE, traceRempart, positionPorte } from './plan.js';
 

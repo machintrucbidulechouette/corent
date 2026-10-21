@@ -1,4 +1,4 @@
-// geometrie.js — primitives à UV métriques et assembleur qui fusionne les géométries par matériau.
+// geometrie.js : primitives à UV métriques et assembleur qui fusionne les géométries par matériau.
 // Fusionner des centaines de pièces en quelques maillages garde le nombre d'appels de dessin bas.
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
