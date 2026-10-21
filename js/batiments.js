@@ -12,7 +12,7 @@ export function gabaritAmphore() {
   const profil = [[0, 0], [0.025, 0.01], [0.04, 0.1], [0.07, 0.2], [0.14, 0.34], [0.155, 0.48],
     [0.15, 0.62], [0.12, 0.71], [0.07, 0.76], [0.058, 0.8], [0.054, 1.0], [0.07, 1.02], [0.066, 1.06], [0, 1.06]]
     .map(([r, y]) => new THREE.Vector2(r, y));
-  const corps = new THREE.LatheGeometry(profil, 10);
+  const corps = new THREE.LatheGeometry(profil, 8);
   const anse = (cote) => {
     const g = new THREE.BoxGeometry(0.025, 0.24, 0.035);
     g.translate(cote * 0.1, 0.86, 0);
@@ -259,7 +259,10 @@ export function forge(A, C, lot) {
   for (let i = 0; i < 6; i++) A.ajouter('fer', boite(0.5, 0.06, 0.08), lx2, y + 0.04 + i * 0.065, lz2 + (i % 2) * 0.09, rot + (i % 2) * 0.1);
   tasDeBois(A, C, ...versMonde(x, z, rot, l / 2 + 1.2, 0), rot + Math.PI / 2);
   if (alea() < 0.5) amphores(A, C, ...versMonde(x, z, rot, -l / 2 - 1, 1.5), 3, alea, { rayon: 0.5 });
-  return new THREE.Vector3(fx, y + 0.8, fz);
+  const foyer = new THREE.Vector3(fx, y + 0.8, fz);
+  foyer.enclume = new THREE.Vector3(ax, y, az);
+  foyer.rot = rot;
+  return foyer;
 }
 
 /** Four de potier circulaire en argile, avec poteries en attente de cuisson. */
@@ -309,4 +312,5 @@ export function enclos(A, C, lot) {
   meuleDeFoin(A, C, ...versMonde(x, z, rot, l / 4, -w / 6), 0.7 + alea() * 0.3);
   const [ax, az] = versMonde(x, z, rot, -l / 3, -w / 4);
   A.ajouter('poutre', boite(1.6, 0.4, 0.5), ax, hauteurSol(ax, az) + 0.2, az, rot);
+  return { x, z, rot, l, w };
 }

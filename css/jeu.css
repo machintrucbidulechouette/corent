@@ -6,7 +6,7 @@ body { font-family: var(--font-ui); }
 
 .ecran {
   position: fixed; inset: 0; z-index: 20;
-  display: grid; place-items: center;
+  display: grid; place-items: center; overflow-y: auto;
   padding: 24px max(16px, env(safe-area-inset-left, 0px)) 24px max(16px, env(safe-area-inset-right, 0px));
 }
 .ecran-voile { background: linear-gradient(to bottom, rgba(30,25,21,0.35), rgba(30,25,21,0.85)); }
@@ -161,3 +161,78 @@ body { font-family: var(--font-ui); }
   .minicarte { width: 140px; height: 140px; }
   .boussole { width: 50vw; }
 }
+
+/* ---------- v2 : son, cinématiques, réglages ---------- */
+#hud.masque > * { opacity: 0; transition: opacity 0.4s ease; }
+#hud > * { transition: opacity 0.4s ease; }
+
+.hud-son {
+  position: absolute; pointer-events: auto;
+  top: calc(16px + env(safe-area-inset-top, 0px)); right: max(16px, env(safe-area-inset-right, 0px));
+  padding: 8px 12px; border: 0; border-radius: 4px; cursor: pointer;
+  background: rgba(30,25,21,0.72); color: var(--chaux); font: 700 0.9rem var(--font-ui);
+}
+.hud-son[aria-pressed="true"] { color: var(--chaux-2); text-decoration: line-through; }
+
+.panneau-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.panneau-actions .bouton-discret kbd { background: var(--bois-3); color: var(--chaux); }
+
+.reglage select {
+  width: 100%; padding: 8px 10px; border-radius: 3px; border: 1px solid var(--bois-3);
+  background: var(--bois-2); color: var(--chaux); font: 500 1rem var(--font-ui);
+}
+.reglage-note { margin: 0; font-size: 0.9rem; color: var(--chaux-2); }
+.lien-bouton { background: none; border: 0; padding: 0; color: var(--ocre); font: inherit; text-decoration: underline; cursor: pointer; }
+#chargement-basse { justify-self: center; }
+
+/* cinématique : bandes noires, carton-titre, sous-titres */
+.cinema { position: fixed; inset: 0; z-index: 14; pointer-events: none; }
+.cinema-bande {
+  position: absolute; left: 0; right: 0; background: #000;
+  transition: transform 0.9s cubic-bezier(.2,.7,.2,1);
+}
+.cinema-haut { top: 0; height: 11vh; transform: translateY(-100%); }
+.cinema-bas {
+  bottom: 0; min-height: 15vh; transform: translateY(100%);
+  display: grid; align-content: center; gap: 10px;
+  padding: 12px max(24px, env(safe-area-inset-right, 0px)) calc(12px + env(safe-area-inset-bottom, 0px)) max(24px, env(safe-area-inset-left, 0px));
+}
+.cinema.ouverte .cinema-haut, .cinema.ouverte .cinema-bas { transform: none; }
+.cinema-sous-titre {
+  margin: 0 auto; max-width: 62ch; min-height: 3.2em; text-align: center;
+  font-family: var(--font-texte); font-size: clamp(1.05rem, 1.7vw, 1.3rem); line-height: 1.5; color: var(--chaux);
+  opacity: 0; transition: opacity 0.5s ease;
+}
+.cinema-sous-titre.visible { opacity: 1; }
+.cinema-pied { display: flex; align-items: center; gap: 16px; max-width: 900px; width: 100%; margin: 0 auto; }
+.cinema-jauge { flex: 1; height: 2px; background: rgba(239,228,207,0.18); overflow: hidden; }
+.cinema-jauge span { display: block; height: 100%; background: var(--bronze); transform-origin: left; transform: scaleX(0); }
+.cinema-passer {
+  pointer-events: auto; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 6px 12px; border-radius: 3px; border: 1px solid rgba(239,228,207,0.3);
+  background: transparent; color: var(--chaux); font: 700 0.9rem var(--font-ui);
+}
+.cinema-passer:hover { background: rgba(239,228,207,0.1); }
+.cinema-carton {
+  position: absolute; left: max(32px, 5vw); top: calc(11vh + 28px);
+  display: grid; gap: 6px; opacity: 0;
+  text-shadow: 0 2px 18px rgba(0,0,0,0.65);
+}
+.cinema-carton h2 { font-size: clamp(2.4rem, 5vw, 4rem); color: var(--chaux); }
+.cinema.ouverte .cinema-carton { animation: carton 7s ease forwards 0.5s; }
+@keyframes carton {
+  0% { opacity: 0; transform: translateY(8px); }
+  12% { opacity: 1; transform: none; }
+  75% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+.alerte-qualite {
+  position: absolute; pointer-events: auto; left: 50%; top: 64px; transform: translateX(-50%);
+  width: min(460px, calc(100% - 32px)); display: grid; gap: 10px;
+  padding: 14px 16px; background: var(--bois); border-left: 4px solid var(--bronze); border-radius: 0 4px 4px 0;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.45);
+}
+.alerte-qualite p { margin: 0; font-family: var(--font-texte); }
+.alerte-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; }

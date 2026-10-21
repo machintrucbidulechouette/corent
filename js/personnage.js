@@ -131,6 +131,7 @@ export class Personnage {
       const main = new THREE.Mesh(new THREE.SphereGeometry(0.048, 8, 6), peau);
       main.position.y = -0.27;
       coude.add(main);
+      if (cote > 0) this.mainDroite = main;
       this.corps.add(pivot);
       return { pivot, coude, cote };
     });
@@ -195,6 +196,20 @@ export class Personnage {
     }
 
     this.racine.traverse((o) => { if (o.isMesh) o.castShadow = true; });
+    this.action = null;
+  }
+
+  /** Donne un outil à la main droite (marteau du forgeron). */
+  outil(type) {
+    if (type !== 'marteau' || !this.mainDroite) return;
+    const bois = new THREE.MeshStandardMaterial({ color: 0x5a4030, roughness: 0.9 });
+    const fer = new THREE.MeshStandardMaterial({ color: 0x3a3836, roughness: 0.45, metalness: 0.8 });
+    const manche = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.018, 0.38, 6), bois);
+    manche.rotation.x = Math.PI / 2;
+    manche.position.z = 0.15;
+    const tete = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.13, 0.06), fer);
+    tete.position.z = 0.32;
+    this.mainDroite.add(manche, tete);
   }
 
   /**
@@ -208,6 +223,10 @@ export class Personnage {
     this.phase += dt * (v * (2.1 - course * 0.6) + 0.0001);
     const amp = Math.min(1, v / 2.6) * (0.55 + course * 0.35);
     const s = Math.sin(this.phase), c = Math.cos(this.phase);
+    // un pas à chaque fois qu'un pied repasse sous le corps
+    const signe = Math.sign(s);
+    this.pas = auSol && v > 0.35 && signe !== 0 && signe !== this.signePas;
+    if (signe !== 0) this.signePas = signe;
 
     if (auSol) {
       this.jambes[0].pivot.rotation.x = s * amp;
@@ -232,6 +251,28 @@ export class Personnage {
       b.coude.rotation.x = -0.15 - amp * 0.45 - course * 0.5;
     }
     this.tete.rotation.y = Math.sin(temps * 0.4) * 0.08 * (1 - Math.min(1, v));
+    this.frappe = false;
+    if (this.action === 'marteau') {
+      // cycle de frappe : lever lent, abattre rapide ; `frappe` passe à vrai à l'impact
+      const periode = 1.15;
+      const avant = this.cycle ?? 0;
+      this.cycle = (avant + dt / periode) % 1;
+      const c = this.cycle;
+      const levee = c < 0.7 ? Math.sin((c / 0.7) * Math.PI / 2) : 1 - (c - 0.7) / 0.12;
+      const b = this.bras[1];
+      b.pivot.rotation.x = -0.4 - Math.max(0, levee) * 2.2;
+      b.pivot.rotation.z = 0.15;
+      b.coude.rotation.x = -0.9 + Math.max(0, levee) * 0.5;
+      const g = this.bras[0];
+      g.pivot.rotation.x = -0.75; g.coude.rotation.x = -0.6;
+      this.corps.rotation.x = 0.15 + (levee < 0.3 ? 0.08 : 0);
+      if (avant < 0.82 && c >= 0.82) this.frappe = true;
+    } else if (this.action === 'parler') {
+      const g = this.bras[(Math.floor(temps / 2.7) % 2)];
+      g.pivot.rotation.x = -0.5 + Math.sin(temps * 2.3) * 0.25;
+      g.coude.rotation.x = -0.9 + Math.sin(temps * 3.1) * 0.2;
+      this.tete.rotation.y = Math.sin(temps * 0.9) * 0.25;
+    }
     if (this.manteau) this.manteau.rotation.x = 0.04 + amp * 0.12 + course * 0.1;
     if (this.def.robe) this.buste.rotation.z = s * amp * 0.03;
   }

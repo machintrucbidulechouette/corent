@@ -11,6 +11,8 @@ export function creerVillage(materiaux) {
   const A = new Assembleur();
   const C = new Collisions();
   const foyers = [];          // sources de fumée et de lueur
+  const enclosListe = [];     // enclos à bétail (pour les animaux)
+  const forges = [];          // positions des enclumes (pour les forgerons)
   const reperes = {};         // positions utilisées par les points d'intérêt
 
   reperes.sanctuaire = sanctuaire(A, C);
@@ -29,6 +31,7 @@ export function creerVillage(materiaux) {
       case 'atelier': {
         const f = forge(A, C, lot);
         foyers.push({ pos: f, type: 'forge' });
+        forges.push({ enclume: f.enclume, rot: f.rot, foyer: f });
         if (!premiereForge) premiereForge = lot;
         break;
       }
@@ -39,7 +42,7 @@ export function creerVillage(materiaux) {
         break;
       }
       case 'enclos':
-        enclos(A, C, lot);
+        enclosListe.push(enclos(A, C, lot));
         break;
       default: {
         maison(A, C, lot);
@@ -65,5 +68,5 @@ export function creerVillage(materiaux) {
   // garde-fou : on ne peut pas sortir du plateau
   const limite = (x, z) => distPlateau(x, z) > -3;
 
-  return { groupe, collisions: C, foyers, reperes, depart, limite, lots };
+  return { groupe, collisions: C, foyers, reperes, depart, limite, lots, enclos: enclosListe, forges };
 }

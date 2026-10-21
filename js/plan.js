@@ -4,9 +4,9 @@
 import { aleatoire } from './bruit.js';
 import { distPlateau } from './relief.js';
 
-export const SANCTUAIRE = { x: 0, z: 0, cote: 46 };          // enclos carré, entrée à l'est
+export const SANCTUAIRE = { x: 0, z: 0, cote: 50 };          // enclos d'environ 50 m de côté, entrée à l'est
 export const PLACE = { x: 70, z: 4, lx: 42, lz: 36 };         // place publique enclose de murs enduits
-export const THEATRE = { x: -2, z: 64, rayon: 21 };           // édifice à gradins, ouvert vers le nord
+export const THEATRE = { x: -2, z: 52, rayon: 7 };            // hémicycle d'environ 13 m, ouvert vers le nord
 
 /** Rues : segments [x1, z1] → [x2, z2] et largeur (m). */
 export const RUES = [
@@ -24,7 +24,7 @@ export const RUES = [
 export const RESERVES = [
   { x: SANCTUAIRE.x, z: SANCTUAIRE.z, hx: 36, hz: 36 },
   { x: PLACE.x, z: PLACE.z, hx: PLACE.lx / 2 + 6, hz: PLACE.lz / 2 + 6 },
-  { x: THEATRE.x, z: THEATRE.z - 6, hx: THEATRE.rayon + 9, hz: THEATRE.rayon + 4 },
+  { x: THEATRE.x, z: THEATRE.z - 2, hx: THEATRE.rayon + 7, hz: THEATRE.rayon + 6 },
 ];
 
 /** Quartier des artisans (forges, fours de potiers), au sud-ouest. */

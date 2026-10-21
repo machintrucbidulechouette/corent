@@ -21,14 +21,26 @@ export function sanctuaire(A, C) {
   P(h, -h, h, -2.6);      // est, partie nord
   P(h, 2.6, h, h);        // est, partie sud
 
-  // bucranes sur un poteau sur deux, tournés vers l'extérieur
+  // bucranes sur un poteau sur deux, trophées d'armes (bouclier, lances) sur les autres
   const buc = gabaritBucrane();
+  const bouclier = new THREE.CylinderGeometry(0.42, 0.42, 0.05, 16).scale(0.62, 1, 1);
+  const umbo = new THREE.SphereGeometry(0.1, 10, 6, 0, Math.PI * 2, 0, Math.PI / 2);
   sommets.forEach(([x, y, z], i) => {
-    if (i % 2) return;
     const dx = x - cx, dz = z - cz;
     const ext = Math.abs(dx) > Math.abs(dz) ? (dx > 0 ? Math.PI / 2 : -Math.PI / 2) : (dz > 0 ? 0 : Math.PI);
     const [ox, oz] = [x + Math.sin(ext) * 0.16, z + Math.cos(ext) * 0.16];
-    for (const g of buc) A.ajouter('os', g, ox, y - 0.1, oz, ext);
+    if (i % 2 === 0) {
+      for (const g of buc) A.ajouter('os', g, ox, y - 0.1, oz, ext);
+    } else if (i % 4 === 1) {
+      // bouclier gaulois ovale accroché au poteau, avec son umbo de fer
+      const [bx, bz] = [x + Math.sin(ext) * 0.2, z + Math.cos(ext) * 0.2];
+      A.ajouter('planches', bouclier, bx, y - 1.1, bz, ext, Math.PI / 2);
+      A.ajouter('fer', umbo, bx + Math.sin(ext) * 0.03, y - 1.1, bz + Math.cos(ext) * 0.03, ext, Math.PI / 2);
+      // deux lances croisées derrière
+      for (const s of [-1, 1]) {
+        A.ajouter('poutre', new THREE.CylinderGeometry(0.02, 0.02, 2.2, 5), x + Math.sin(ext) * 0.12, y - 1.0, z + Math.cos(ext) * 0.12, ext, 0, s * 0.45);
+      }
+    }
   });
 
   // porche d'entrée
@@ -115,52 +127,62 @@ export function sanctuaire(A, C) {
   return { porte: new THREE.Vector3(cx + h + 1.2, yP, cz) };
 }
 
-/** Édifice à gradins de bois (lieu d'assemblée), ouvert vers le nord. */
+/**
+ * Hémicycle d'assemblée gaulois : environ 13 m de diamètre et cinq rangées de gradins en bois
+ * (d'après le dépliant du site de Corent, Conseil départemental du Puy-de-Dôme). Ouvert vers le nord.
+ */
 export function theatre(A, C) {
   const { x: cx, z: cz } = THEATRE;
   const y0 = hauteurSol(cx, cz);
-  const rangs = 9, r0 = 8.5, pas = 1.35, haut = 0.45;
+  const rangs = 5, r0 = 2.4, pas = 0.8, haut = 0.4;
   for (let k = 0; k < rangs; k++) {
     const r = r0 + k * pas + pas / 2;
-    const n = Math.max(10, Math.round((Math.PI * r) / 1.7));
+    const n = Math.max(8, Math.round((Math.PI * r) / 1.1));
     const hTop = (k + 1) * haut;
     for (let i = 0; i < n; i++) {
-      const a = ((i + 0.5) / n) * Math.PI;              // de l'est (0) à l'ouest (π), côté sud
+      const a = ((i + 0.5) / n) * Math.PI;               // de l'est (0) à l'ouest (π), côté sud
       const x = cx + Math.cos(a) * r, z = cz + Math.sin(a) * r;
-      const rot = -a + Math.PI / 2;                      // la face avant regarde le centre
-      const longueur = (Math.PI * r) / n + 0.05;
+      const rot = -a + Math.PI / 2;
+      const longueur = (Math.PI * r) / n + 0.04;
       A.ajouter('planches', boite(longueur, hTop + 0.6, pas, 1.2), x, y0 + hTop / 2 - 0.3, z, rot);
+      // nez de marche plus sombre
+      A.ajouter('poutre', boite(longueur, 0.08, 0.1), x - Math.cos(a) * (pas / 2 - 0.05), y0 + hTop - 0.03, z - Math.sin(a) * (pas / 2 - 0.05), rot);
       C.rectangle(x, z, longueur / 2, pas / 2, rot, y0 + hTop);
     }
   }
-  // mur de fond et galerie couverte au sommet
-  const rFond = r0 + rangs * pas + 0.4;
-  const nFond = 26;
+  // palissade de fond et galerie couverte au sommet
+  const rFond = r0 + rangs * pas + 0.2;
+  const nFond = 14;
+  const hautSommet = y0 + rangs * haut;
   for (let i = 0; i < nFond; i++) {
     const a0 = (i / nFond) * Math.PI, a1 = ((i + 1) / nFond) * Math.PI;
     const x1 = cx + Math.cos(a0) * rFond, z1 = cz + Math.sin(a0) * rFond;
     const x2 = cx + Math.cos(a1) * rFond, z2 = cz + Math.sin(a1) * rFond;
     const l = Math.hypot(x2 - x1, z2 - z1), rot = -Math.atan2(z2 - z1, x2 - x1);
-    const hMur = rangs * haut + 2.8;
-    A.ajouter('planchesFonce', boite(l + 0.05, hMur, 0.3, 1.6), (x1 + x2) / 2, y0 + hMur / 2 - 0.2, (z1 + z2) / 2, rot);
-    C.segment(x1, z1, x2, z2, 0.5);
+    const hMur = rangs * haut + 2.6;
+    A.ajouter('planchesFonce', boite(l + 0.05, hMur, 0.22, 1.6), (x1 + x2) / 2, y0 + hMur / 2 - 0.2, (z1 + z2) / 2, rot);
+    C.segment(x1, z1, x2, z2, 0.4);
     const am = (a0 + a1) / 2;
-    const rp = rFond - 2.2;
-    poteau(A, null, cx + Math.cos(am) * rp, cz + Math.sin(am) * rp, 2.6, 0.1, 'poutre', y0 + rangs * haut);
-    A.ajouter('bardeaux', appentis(l + 0.25, 2.8, 3.1, 2.4), cx + Math.cos(am) * (rFond - 1.2), y0 + rangs * haut, cz + Math.sin(am) * (rFond - 1.2), rot);
+    poteau(A, null, cx + Math.cos(am) * (rFond - 1.3), cz + Math.sin(am) * (rFond - 1.3), 2.2, 0.08, 'poutre', hautSommet);
+    A.ajouter('bardeaux', appentis(l + 0.6, 1.7, 2.65, 2.15), cx + Math.cos(am) * (rFond - 0.65), hautSommet, cz + Math.sin(am) * (rFond - 0.65), rot);
   }
   // murs d'extrémité
   for (const s of [1, -1]) {
     const x = cx + s * (r0 + (rangs * pas) / 2);
-    const hMur = rangs * haut + 0.4;
-    A.ajouter('planchesFonce', boite(rangs * pas + 0.8, hMur, 0.3, 1.6), x, y0 + hMur / 2 - 0.2, cz - 0.2);
-    C.rectangle(x, cz - 0.2, (rangs * pas) / 2 + 0.4, 0.25);
+    const hMur = rangs * haut + 0.3;
+    A.ajouter('planchesFonce', boite(rangs * pas + 0.5, hMur, 0.22, 1.6), x, y0 + hMur / 2 - 0.2, cz - 0.15);
+    C.rectangle(x, cz - 0.15, (rangs * pas) / 2 + 0.25, 0.2);
   }
   // tribune des orateurs, face aux gradins
-  A.ajouter('planches', boite(5, 0.5, 2.6, 1.2), cx, y0 + 0.25, cz - 4.5);
-  C.rectangle(cx, cz - 4.5, 2.5, 1.3, 0, y0 + 0.5);
-  for (const s of [-1, 1]) poteau(A, C, cx + s * 2.3, cz - 5.6, 2.6, 0.1, 'rouge', y0 + 0.5);
-  A.ajouter('tissuRouge', appentis(5.2, 2.8, 3.4, 3.0), cx, y0 + 0.2, cz - 4.5);
+  A.ajouter('planches', boite(3, 0.4, 1.6, 1.2), cx, y0 + 0.2, cz - 2.4);
+  C.rectangle(cx, cz - 2.4, 1.5, 0.8, 0, y0 + 0.4);
+  for (const s of [-1, 1]) poteau(A, C, cx + s * 1.35, cz - 3.1, 2.3, 0.08, 'rouge', y0 + 0.4);
+  A.ajouter('tissuRouge', appentis(3.2, 1.8, 3.0, 2.7), cx, y0 + 0.1, cz - 2.4);
+  // bancs de part et d'autre, pour les auditeurs debout
+  for (const s of [-1, 1]) {
+    A.ajouter('planches', boite(2.2, 0.45, 0.4), cx + s * 4.5, hauteurSol(cx + s * 4.5, cz - 3.5) + 0.22, cz - 3.5);
+    C.rectangle(cx + s * 4.5, cz - 3.5, 1.1, 0.2, 0, hauteurSol(cx + s * 4.5, cz - 3.5) + 0.45);
+  }
 }
 
 /** Place publique enclose de murs enduits, avec étals et portique. */

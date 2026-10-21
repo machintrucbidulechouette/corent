@@ -2,7 +2,7 @@
 import * as THREE from 'three';
 import { LIEUX } from './donnees.js';
 import { hauteurSol, distPlateau } from './relief.js';
-import { SANCTUAIRE, THEATRE } from './plan.js';
+import { SANCTUAIRE, THEATRE, PLACE } from './plan.js';
 import { versMonde } from './batiments.js';
 
 const RAYON = 6.5;
@@ -24,7 +24,7 @@ function emplacements(reperes) {
   p.sanctuaire = [reperes.sanctuaire.porte.x + 4.5, reperes.sanctuaire.porte.z + 4];
   p.temples = [SANCTUAIRE.x + 2, SANCTUAIRE.z + 2];
   p.fosses = [SANCTUAIRE.x + 1, SANCTUAIRE.z + 15];
-  p.assemblee = [THEATRE.x + 3, THEATRE.z - 2];
+  p.assemblee = [THEATRE.x + 1.5, THEATRE.z - 6.5];
   p.place = [reperes.place.porteOuest.x + 5, reperes.place.porteOuest.z - 4];
   p.maison = devantLot(reperes.maison, 2.2);
   p.forge = devantLot(reperes.forge, 4.5);
@@ -33,15 +33,34 @@ function emplacements(reperes) {
   return p;
 }
 
+/** Centre de ce que montre chaque lieu (sujet des cinématiques), avec l'orientation du bâtiment. */
+function sujets(reperes) {
+  const lot = (l) => l && { x: l.x, z: l.z, rot: l.rot, taille: Math.max(l.l || 6, l.w || 6) };
+  return {
+    porte: { x: reperes.rempart.porte.x, z: reperes.rempart.porte.z, rot: Math.PI / 2, taille: 9 },
+    sanctuaire: { x: SANCTUAIRE.x, z: SANCTUAIRE.z, rot: Math.PI / 2, taille: SANCTUAIRE.cote },
+    temples: { x: SANCTUAIRE.x - 7, z: SANCTUAIRE.z - 5, rot: Math.PI / 2, taille: 11 },
+    fosses: { x: SANCTUAIRE.x + 1, z: SANCTUAIRE.z + 11, rot: 0, taille: 16 },
+    assemblee: { x: THEATRE.x, z: THEATRE.z, rot: Math.PI, taille: 13 },
+    place: { x: PLACE.x, z: PLACE.z, rot: -Math.PI / 2, taille: PLACE.lx },
+    maison: lot(reperes.maison),
+    forge: lot(reperes.forge),
+    potier: lot(reperes.four),
+    grenier: lot(reperes.grenier),
+  };
+}
+
 export class PointsInteret {
   constructor(scene, reperes, decouverts) {
     this.groupe = new THREE.Group();
     scene.add(this.groupe);
     this.decouverts = decouverts;   // Set d'identifiants
     const pos = emplacements(reperes);
+    const suj = sujets(reperes);
     this.lieux = LIEUX.filter(l => pos[l.id]).map(l => {
       const [x, z] = pos[l.id];
-      return { ...l, x, z, y: hauteurSol(x, z) };
+      const s = suj[l.id] || { x, z, rot: 0, taille: 10 };
+      return { ...l, x, z, y: hauteurSol(x, z), sujet: { ...s, y: hauteurSol(s.x, s.z) } };
     });
 
     const matBois = new THREE.MeshStandardMaterial({ color: 0x5b4532, roughness: 0.9 });

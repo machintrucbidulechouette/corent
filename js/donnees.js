@@ -18,7 +18,7 @@ export const LIEUX = [
     titre: 'Le belvédère',
     epoque: 'Vue vers le nord',
     texte: [
-      'Le plateau domine la plaine de la Limagne et la vallée de l’Allier, à environ 600 mètres d’altitude. Cette position contrôle les routes qui relient le Massif central à la Méditerranée.',
+      'Le plateau domine la plaine de la Limagne et la vallée de l’Allier, à environ 600 mètres d’altitude. La ville couvrait plus de 50 hectares et comptait plusieurs milliers d’habitants. Cette position contrôle les routes qui relient le Massif central à la Méditerranée.',
       'Au nord se dresse le plateau de Gergovie, où Vercingétorix repoussa l’armée de César en 52 av. J.-C. Plus loin, à l’ouest, s’alignent les volcans de la chaîne des Puys, dominés par le puy de Dôme.',
     ],
     observer: 'Cherchez le plateau de Gergovie au nord et la silhouette du puy de Dôme au nord-ouest.',
@@ -28,8 +28,9 @@ export const LIEUX = [
     titre: 'Le sanctuaire',
     epoque: 'Cœur religieux et politique',
     texte: [
-      'La ville s’est organisée autour de ce sanctuaire. Un fossé et une palissade délimitent un espace sacré quadrangulaire, fermé par une galerie couverte.',
-      'Des crânes de bovins ornent les poteaux. Ces trophées rappellent les sacrifices et les banquets qui réunissaient la communauté.',
+      'La ville s’est organisée autour de ce sanctuaire d’environ 50 mètres de côté. Un fossé et une haute galerie de terre et de bois délimitent l’espace sacré.',
+      'Des crânes de bovins et des trophées d’armes, boucliers et lances, ornent la palissade : ce sont des offrandes aux divinités guerrières.',
+      'Dans la cour avaient lieu les sacrifices, les banquets et les rites. Les chefs arvernes y faisaient aussi frapper leur monnaie.',
       'Les archéologues y ont mis au jour une quantité exceptionnelle d’ossements d’animaux, d’armes, de monnaies et surtout de fragments d’amphores.',
     ],
     observer: 'Comptez les bucranes au-dessus de la palissade et passez sous le porche d’entrée.',
@@ -61,7 +62,8 @@ export const LIEUX = [
     titre: 'L’édifice à gradins',
     epoque: 'Lieu d’assemblée',
     texte: [
-      'Près du sanctuaire, les fouilles ont révélé un édifice semi-circulaire à gradins. On l’interprète comme un lieu d’assemblée où se réunissaient les chefs et les citoyens.',
+      'Près du sanctuaire, les fouilles ont révélé un hémicycle d’environ 13 mètres de diamètre, avec cinq rangées de gradins en bois. On l’interprète comme un lieu d’assemblée.',
+      'À l’époque romaine, un théâtre plus grand sera construit au même endroit, en reprenant son plan.',
       'Chez les Arvernes, peuple puissant du centre de la Gaule, les décisions étaient débattues par une aristocratie. Ce bâtiment donne une image concrète de cette vie politique.',
     ],
     observer: 'Montez les gradins et regardez la tribune depuis le rang le plus haut.',
@@ -82,7 +84,7 @@ export const LIEUX = [
     titre: 'Une maison arverne',
     epoque: 'Quartier d’habitation',
     texte: [
-      'Les maisons sont construites en bois et en torchis, un mélange d’argile, de paille et de bouse appliqué sur un clayonnage de branches.',
+      'Les maisons gauloises de Corent ont un plan quadrangulaire. Leurs murs de torchis, un mélange d’argile, de paille et de bouse appliqué sur un clayonnage de branches, reposent sur des poutres enterrées, les sablières basses.',
       'Les toits sont couverts de bardeaux de bois ou de chaume. À l’intérieur, un foyer central chauffe la pièce et sert à cuisiner ; la fumée s’échappe à travers la toiture.',
       'Les maisons s’alignent le long de rues empierrées, comme dans une véritable ville.',
     ],

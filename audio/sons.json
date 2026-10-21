@@ -1,0 +1,22 @@
+{
+  "_aide": "Déposez vos enregistrements dans ce dossier et déclarez-les ici. Exemple : \"foule\": \"foule.ogg\". Voir le README, section Son.",
+  "_exemples": {
+    "vent": "vent.ogg",
+    "feu": "feu.ogg",
+    "foule": "foule.ogg",
+    "alouette": "alouette.ogg",
+    "grillons": "grillons.ogg",
+    "enclume": ["enclume-1.ogg", "enclume-2.ogg"],
+    "cochon": ["cochon-1.ogg"],
+    "mouton": ["mouton-1.ogg"],
+    "boeuf": ["boeuf-1.ogg"],
+    "chien": ["chien-1.ogg"],
+    "corneille": ["corneille-1.ogg"],
+    "passereau": ["passereau-1.ogg"],
+    "chouette": ["chouette-1.ogg"],
+    "pas-gravier": ["pas-gravier-1.ogg"],
+    "pas-herbe": ["pas-herbe-1.ogg"],
+    "pas-terre": ["pas-terre-1.ogg"],
+    "pas-bois": ["pas-bois-1.ogg"]
+  }
+}

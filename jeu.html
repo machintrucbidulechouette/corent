@@ -29,6 +29,7 @@
       <h1>Corent</h1>
       <div class="chargement-jauge"><span id="chargement-barre"></span></div>
       <p id="chargement-etape" class="chargement-etape">Ouverture des portes…</p>
+      <button id="chargement-basse" class="bouton" type="button" hidden>Réessayer en qualité basse</button>
     </div>
   </section>
 
@@ -37,7 +38,7 @@
     <div class="choix-boite">
       <p class="etiquette">Avant d’entrer</p>
       <h2>Qui êtes-vous ?</h2>
-      <p class="choix-intro">Choisissez un habitant de Corent. Une dizaine de lieux sont signalés par un anneau de bronze : approchez-vous et appuyez sur <kbd>E</kbd> pour les découvrir.</p>
+      <p class="choix-intro">Choisissez un habitant de Corent. Onze lieux sont signalés par un anneau de bronze : approchez-vous et appuyez sur <kbd>E</kbd> pour lancer leur présentation filmée. Mettez un casque ou des écouteurs : la ville s’entend autant qu’elle se voit.</p>
       <div id="choix-liste" class="choix-liste"></div>
       <div class="choix-pied">
         <button id="choix-entrer" class="bouton" type="button">Entrer dans la ville</button>
@@ -64,22 +65,32 @@
 
     <canvas id="minicarte" class="minicarte" width="200" height="200" aria-label="Mini-carte"></canvas>
 
+    <button id="hud-son" class="hud-son" type="button" aria-pressed="false">Son · N</button>
+
     <div id="hud-aide" class="hud-aide">
       <span><kbd>Z</kbd><kbd>Q</kbd><kbd>S</kbd><kbd>D</kbd> marcher</span>
       <span><kbd>Maj</kbd> courir</span>
       <span><kbd>Espace</kbd> sauter</span>
       <span><kbd>V</kbd> vue</span>
       <span><kbd>M</kbd> carte</span>
+      <span><kbd>N</kbd> son</span>
       <span><kbd>H</kbd> masquer l’aide</span>
       <span><kbd>Échap</kbd> pause</span>
     </div>
 
     <div id="invite" class="invite" hidden>
       <kbd>E</kbd>
-      <span>Découvrir <strong id="invite-titre"></strong></span>
+      <span>Voir <strong id="invite-titre"></strong></span>
     </div>
 
     <div id="toast" class="toast" role="status" hidden></div>
+    <div id="alerte-qualite" class="alerte-qualite" role="status" hidden>
+      <p id="alerte-qualite-texte"></p>
+      <div class="alerte-actions">
+        <button id="alerte-qualite-appliquer" class="bouton" type="button">Recharger en qualité plus fluide</button>
+        <button id="alerte-qualite-fermer" class="lien-bouton" type="button">Garder la qualité actuelle</button>
+      </div>
+    </div>
     <span class="viseur" aria-hidden="true"></span>
   </div>
 
@@ -94,9 +105,28 @@
         <span class="etiquette">À observer</span>
         <p id="panneau-observer"></p>
       </div>
-      <button id="panneau-fermer" class="bouton" type="button">Reprendre la visite <kbd>E</kbd></button>
+      <div class="panneau-actions">
+        <button id="panneau-fermer" class="bouton" type="button">Reprendre la visite <kbd>E</kbd></button>
+        <button id="panneau-revoir" class="bouton bouton-discret" type="button">Revoir le film <kbd>R</kbd></button>
+      </div>
     </div>
   </aside>
+
+  <!-- cinématique -->
+  <section id="cinema" class="cinema" hidden aria-live="polite">
+    <div class="cinema-bande cinema-haut"></div>
+    <div class="cinema-bande cinema-bas">
+      <p id="cinema-sous-titre" class="cinema-sous-titre"></p>
+      <div class="cinema-pied">
+        <span class="cinema-jauge"><span id="cinema-progression"></span></span>
+        <button id="cinema-passer" class="cinema-passer" type="button">Passer <kbd>E</kbd></button>
+      </div>
+    </div>
+    <div class="cinema-carton">
+      <p id="cinema-epoque" class="etiquette"></p>
+      <h2 id="cinema-titre"></h2>
+    </div>
+  </section>
 
   <!-- grande carte -->
   <section id="carte-plein" class="carte-plein" hidden>
@@ -116,16 +146,25 @@
       <div class="reglages">
         <label class="reglage" for="reglage-heure">
           <span>Heure du jour <strong id="reglage-heure-valeur">16 h 00</strong></span>
-          <input id="reglage-heure" type="range" min="6" max="21" step="0.25" value="16">
+          <input id="reglage-heure" type="range" min="5" max="22" step="0.25" value="16">
         </label>
         <label class="reglage" for="reglage-sensibilite">
           <span>Sensibilité de la souris</span>
           <input id="reglage-sensibilite" type="range" min="8" max="45" step="1" value="22">
         </label>
-        <label class="reglage reglage-case" for="reglage-ombres">
-          <input id="reglage-ombres" type="checkbox" checked>
-          <span>Ombres portées</span>
+        <label class="reglage" for="reglage-volume">
+          <span>Volume de l’ambiance</span>
+          <input id="reglage-volume" type="range" min="0" max="100" step="1" value="80">
         </label>
+        <label class="reglage reglage-case" for="reglage-narration">
+          <input id="reglage-narration" type="checkbox">
+          <span>Lire les textes à voix haute pendant les films</span>
+        </label>
+        <div class="reglage">
+          <label for="reglage-qualite"><span>Qualité graphique</span></label>
+          <select id="reglage-qualite"></select>
+          <p id="reglage-qualite-note" class="reglage-note" hidden>Le changement s’applique au rechargement. <button id="reglage-qualite-appliquer" class="lien-bouton" type="button">Recharger maintenant</button></p>
+        </div>
         <button id="reglage-vue" class="bouton bouton-discret" type="button">Passer en vue subjective</button>
         <button id="reglage-reinit" class="bouton bouton-discret" type="button">Remettre la visite à zéro</button>
       </div>

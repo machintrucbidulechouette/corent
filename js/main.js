@@ -1,4 +1,4 @@
-// main.js — point d'entrée du jeu : chargement, choix du personnage, boucle de rendu, interface.
+// main.js — point d'entrée du jeu : chargement, choix du personnage, boucle, interface, cinématiques, son.
 import * as THREE from 'three';
 import { creerTextures } from './textures.js';
 import { creerMateriaux } from './materiaux.js';
@@ -11,26 +11,24 @@ import { Joueur } from './joueur.js';
 import { PointsInteret } from './poi.js';
 import { Fumees } from './fumee.js';
 import { Carte } from './carte.js';
+import { Rendu, QUALITES, lireQualite, ecrireQualite, qualiteInferieure } from './rendu.js';
+import { Herbe } from './herbe.js';
+import { Nuages } from './nuages.js';
+import { Habitants } from './habitants.js';
+import { Cinematique } from './cinematique.js';
+import { PaysageSonore, prechargerSons, surfaceSous } from './audio.js';
+import { hauteurSol } from './relief.js';
 
 const $ = (id) => document.getElementById(id);
 const CLE_DECOUVERTES = 'corent-lieux-decouverts';
+const CLE_NARRATION = 'corent-narration';
+const CLE_REPLI = 'corent-repli-qualite';
 
-// ---------- état de l'interface ----------
-const etat = {
-  enJeu: false,
-  panneau: null,      // lieu affiché
-  carte: false,
-  aide: true,
-  lieuProche: null,
-};
+const etat = { enJeu: false, panneau: null, carte: false, aide: true, lieuProche: null, cinema: false };
 
-function lireDecouvertes() {
-  try { return new Set(JSON.parse(localStorage.getItem(CLE_DECOUVERTES) || '[]')); }
-  catch { return new Set(); }
-}
-function ecrireDecouvertes(set) {
-  try { localStorage.setItem(CLE_DECOUVERTES, JSON.stringify([...set])); } catch { /* stockage indisponible */ }
-}
+function lire(cle, defaut) { try { const v = localStorage.getItem(cle); return v === null ? defaut : v; } catch { return defaut; } }
+function ecrire(cle, v) { try { localStorage.setItem(cle, v); } catch { /* stockage indisponible */ } }
+function lireDecouvertes() { try { return new Set(JSON.parse(lire(CLE_DECOUVERTES, '[]'))); } catch { return new Set(); } }
 
 async function etape(texte, pourcent, travail) {
   $('chargement-etape').textContent = texte;
@@ -39,41 +37,63 @@ async function etape(texte, pourcent, travail) {
   return travail();
 }
 
-// ---------- démarrage ----------
-let renderer, scene, camera, ambiance, joueur, personnage, poi, fumees, carte, monde, textures;
+let rendu, renderer, scene, camera, ambiance, joueur, personnage, poi, fumees, carte, monde, textures;
+let herbe, nuages, habitants, vegetation, cinema;
 const decouverts = lireDecouvertes();
+const son = new PaysageSonore();
+const nomQualite = lireQualite();
 
 async function charger() {
-  const canvas = $('scene');
-  renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.75));
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFShadowMap;
-  renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 0.7;
+  prechargerSons();     // la synthèse des sons démarre en parallèle
+  rendu = new Rendu($('scene'), nomQualite);
+  renderer = rendu.renderer;
+  const q = rendu.q;
+  rendu.surErreurShader = () => {
+    // un shader refusé par la carte graphique : on redescend d'un cran de qualité, une seule fois par session
+    const plus_bas = qualiteInferieure(nomQualite);
+    let deja = false;
+    try { deja = sessionStorage.getItem(CLE_REPLI) === nomQualite; sessionStorage.setItem(CLE_REPLI, nomQualite); } catch { /* rien */ }
+    if (plus_bas && !deja) { ecrireQualite(plus_bas); location.reload(); }
+  };
 
   scene = new THREE.Scene();
   camera = new THREE.PerspectiveCamera(62, window.innerWidth / window.innerHeight, 0.15, 14000);
+  const ombres = rendu.creerOmbres(scene, camera);
 
-  textures = await etape('Préparation des enduits, du chaume et des bardeaux', 8, () => creerTextures(renderer));
+  textures = await etape('Préparation des enduits, du chaume et des bardeaux', 6, () => creerTextures(renderer));
   const materiaux = creerMateriaux(textures);
-  await etape('Modelage du plateau et de la plaine', 22, () => scene.add(creerTerrain(textures)));
-  monde = await etape('Construction du sanctuaire, de la place et des maisons', 45, () => creerVillage(materiaux));
+  await etape('Modelage du plateau et de la plaine', 18, () => scene.add(creerTerrain(textures).groupe));
+  monde = await etape('Construction du sanctuaire, de la place et des maisons', 34, () => creerVillage(materiaux));
   scene.add(monde.groupe);
-  await etape('Plantation des arbres et des herbes', 70, () => scene.add(creerVegetation(monde.collisions, monde.depart)));
-  ambiance = await etape('Lever du soleil sur la Limagne', 82, () => new Ambiance(scene, renderer));
-  await etape('Pose des balises de visite', 90, () => {
+  vegetation = await etape('Plantation des chênes, des hêtres et des haies', 50, () => creerVegetation(monde.collisions, monde.depart, textures, rendu));
+  scene.add(vegetation.groupe);
+  herbe = await etape('Semis de l’herbe', 60, () => new Herbe(scene, monde.collisions, q.herbe));
+  rendu.masquesAO.push(herbe.maillage);
+  ambiance = await etape('Lever du soleil sur la Limagne', 68, () => new Ambiance(scene, renderer, ombres));
+  nuages = new Nuages(scene);
+  rendu.masquesAO.push(nuages.maillage, ambiance.etoiles);
+  habitants = await etape('Les habitants sortent de chez eux', 76, () => new Habitants(scene, renderer, monde, rendu, nomQualite === 'basse' ? 10 : 18));
+  await etape('Pose des balises de visite', 84, () => {
     poi = new PointsInteret(scene, monde.reperes, decouverts);
     fumees = new Fumees(scene, monde.foyers, textures.fumee);
+    rendu.masquesAO.push(fumees.points);
     carte = new Carte(monde.lots, poi.lieux);
+    cinema = new Cinematique(camera, {
+      racine: $('cinema'), titre: $('cinema-titre'), epoque: $('cinema-epoque'),
+      sousTitre: $('cinema-sous-titre'), progression: $('cinema-progression'),
+    });
+    cinema.narration = lire(CLE_NARRATION, 'non') === 'oui';
   });
-  await etape('Compilation des matériaux', 97, () => {
+  await etape('Réglage des ombres et de la lumière', 92, () => {
+    rendu.preparerScene(scene);
+    rendu.creerPostTraitement(scene, camera);
     camera.position.set(monde.depart.x - 8, monde.depart.y + 5, monde.depart.z);
     camera.lookAt(monde.depart.x + 30, monde.depart.y + 2, monde.depart.z);
-    renderer.compile(scene, camera);
   });
+  await etape('Compilation des matériaux', 97, () => renderer.compile(scene, camera));
+  await etape('Composition des sons de la ville', 99, () => Promise.race([prechargerSons(), new Promise((r) => setTimeout(r, 4000))]));
 
+  initialiserReglages();
   majCompteur();
   $('chargement').hidden = true;
   $('choix').hidden = false;
@@ -108,62 +128,74 @@ function entrer() {
   const def = PERSONNAGES.find((p) => `perso-${p.id}` === choisi.id) || PERSONNAGES[0];
   personnage = new Personnage(def, renderer);
   scene.add(personnage.racine);
+  rendu.preparerScene(personnage.racine);
   joueur = new Joueur(camera, personnage, monde);
-  joueur.placer(monde.depart, Math.PI / 2);   // regard vers l'est, la ville
+  joueur.placer(monde.depart, Math.PI / 2);
   joueur.actif = true;
+  joueur.sensibilite = parseFloat($('reglage-sensibilite').value) / 10000;
   $('hud-nom').textContent = `${def.nom} · ${def.role}`;
   $('choix').hidden = true;
   $('hud').hidden = false;
   etat.enJeu = true;
+  son.demarrer().then(() => majBoutonSon());
   verrouiller();
 }
 
 // ---------- pointeur et pause ----------
 function verrouiller() {
-  const c = $('scene');
-  try {
-    const r = c.requestPointerLock?.();
-    if (r && r.catch) r.catch(() => {});
-  } catch { /* pointeur non disponible */ }
+  try { const r = $('scene').requestPointerLock?.(); if (r && r.catch) r.catch(() => {}); } catch { /* indisponible */ }
 }
 
 document.addEventListener('pointerlockchange', () => {
   const verrouille = document.pointerLockElement === $('scene');
   if (!etat.enJeu) return;
-  if (!verrouille && !etat.panneau) ouvrirPause();
+  if (!verrouille && !etat.panneau && !etat.cinema) ouvrirPause();
   if (verrouille) $('pause').hidden = true;
 });
 
-function ouvrirPause() {
-  $('pause').hidden = false;
-  $('pause-reprendre').focus();
-}
+function ouvrirPause() { $('pause').hidden = false; $('pause-reprendre').focus(); }
 
 $('pause-reprendre').addEventListener('click', () => { $('pause').hidden = true; verrouiller(); });
-$('scene').addEventListener('click', () => { if (etat.enJeu && !etat.panneau) verrouiller(); });
+$('scene').addEventListener('click', () => { if (etat.enJeu && !etat.panneau && !etat.cinema) verrouiller(); });
+
+function initialiserReglages() {
+  const q = $('reglage-qualite');
+  q.replaceChildren(...Object.entries(QUALITES).map(([cle, v]) => {
+    const o = document.createElement('option'); o.value = cle; o.textContent = v.nom; o.selected = cle === nomQualite; return o;
+  }));
+  q.addEventListener('change', () => { ecrireQualite(q.value); $('reglage-qualite-note').hidden = false; });
+  $('reglage-qualite-appliquer').addEventListener('click', () => location.reload());
+  $('reglage-volume').value = String(Math.round(son.volume * 100));
+  $('reglage-narration').checked = cinema.narration;
+}
+
 $('reglage-heure').addEventListener('input', (e) => {
   const h = parseFloat(e.target.value);
   $('reglage-heure-valeur').textContent = `${Math.floor(h)} h ${String(Math.round((h % 1) * 60)).padStart(2, '0')}`;
   ambiance?.regler(h);
 });
-$('reglage-ombres').addEventListener('change', (e) => {
-  renderer.shadowMap.enabled = e.target.checked;
-  scene.traverse((o) => { if (o.material) [].concat(o.material).forEach((m) => { m.needsUpdate = true; }); });
-});
 $('reglage-sensibilite').addEventListener('input', (e) => { if (joueur) joueur.sensibilite = parseFloat(e.target.value) / 10000; });
+$('reglage-volume').addEventListener('input', (e) => son.regler(parseFloat(e.target.value) / 100));
+$('reglage-narration').addEventListener('change', (e) => { cinema.narration = e.target.checked; ecrire(CLE_NARRATION, e.target.checked ? 'oui' : 'non'); });
 $('reglage-vue').addEventListener('click', () => basculerVue());
 $('reglage-reinit').addEventListener('click', () => {
   decouverts.clear();
-  ecrireDecouvertes(decouverts);
+  ecrire(CLE_DECOUVERTES, '[]');
   poi.actualiserCouleurs();
   majCompteur();
   $('reglage-reinit').textContent = 'Visite remise à zéro';
 });
+$('hud-son').addEventListener('click', () => { son.basculerCoupure(); majBoutonSon(); });
+
+function majBoutonSon() {
+  $('hud-son').textContent = son.coupe ? 'Son coupé · N' : 'Son · N';
+  $('hud-son').setAttribute('aria-pressed', son.coupe ? 'true' : 'false');
+}
 
 document.addEventListener('mousemove', (e) => {
-  if (document.pointerLockElement === $('scene') && joueur) joueur.regarder(e.movementX, e.movementY);
+  if (document.pointerLockElement === $('scene') && joueur && !etat.cinema) joueur.regarder(e.movementX, e.movementY);
 });
-document.addEventListener('wheel', (e) => { if (joueur && etat.enJeu) joueur.zoomer(e.deltaY); }, { passive: true });
+document.addEventListener('wheel', (e) => { if (joueur && etat.enJeu && !etat.cinema) joueur.zoomer(e.deltaY); }, { passive: true });
 
 function basculerVue() {
   if (!joueur) return;
@@ -176,15 +208,23 @@ function basculerVue() {
 document.addEventListener('keydown', (e) => {
   if (!etat.enJeu) return;
   if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.code)) e.preventDefault();
+  if (etat.cinema) {
+    if (!e.repeat && ['KeyE', 'Space', 'Escape', 'Enter'].includes(e.code)) cinema.passer();
+    return;
+  }
   joueur.touches.add(e.code);
   if (e.repeat) return;
   switch (e.code) {
     case 'KeyE':
       if (etat.panneau) fermerPanneau();
-      else if (etat.lieuProche) ouvrirPanneau(etat.lieuProche);
+      else if (etat.lieuProche) lancerCinematique(etat.lieuProche);
+      break;
+    case 'KeyR':
+      if (etat.panneau) { const l = etat.panneau; fermerPanneau(false); lancerCinematique(l); }
       break;
     case 'KeyV': basculerVue(); break;
     case 'KeyM': basculerCarte(); break;
+    case 'KeyN': son.basculerCoupure(); majBoutonSon(); toast(son.coupe ? 'Son coupé' : 'Son rétabli'); break;
     case 'KeyH':
       etat.aide = !etat.aide;
       $('hud-aide').hidden = !etat.aide;
@@ -198,12 +238,33 @@ document.addEventListener('keydown', (e) => {
 document.addEventListener('keyup', (e) => joueur?.touches.delete(e.code));
 window.addEventListener('blur', () => joueur?.touches.clear());
 
+// ---------- cinématiques ----------
+function lancerCinematique(lieu) {
+  etat.cinema = true;
+  joueur.actif = false;
+  joueur.touches.clear();
+  $('invite').hidden = true;
+  $('hud').classList.add('masque');
+  if (etat.carte) basculerCarte();
+  son.attenuer(cinema.narration);
+  cinema.lancer(lieu, {
+    surFin: (l) => {
+      etat.cinema = false;
+      $('hud').classList.remove('masque');
+      son.attenuer(false);
+      joueur.camPos.copy(camera.position);   // la caméra de jeu repart en douceur depuis la fin du plan
+      ouvrirPanneau(l);
+    },
+  });
+}
+$('cinema-passer').addEventListener('click', () => cinema.passer());
+
 // ---------- panneau des lieux ----------
 function ouvrirPanneau(lieu) {
   etat.panneau = lieu;
   const nouveau = !decouverts.has(lieu.id);
   decouverts.add(lieu.id);
-  ecrireDecouvertes(decouverts);
+  ecrire(CLE_DECOUVERTES, JSON.stringify([...decouverts]));
   poi.actualiserCouleurs();
   majCompteur();
   $('panneau-epoque').textContent = lieu.epoque;
@@ -226,6 +287,7 @@ function fermerPanneau(reverrouiller = true) {
   if (reverrouiller) verrouiller();
 }
 $('panneau-fermer').addEventListener('click', () => fermerPanneau());
+$('panneau-revoir').addEventListener('click', () => { const l = etat.panneau; fermerPanneau(false); lancerCinematique(l); });
 
 function basculerCarte() {
   etat.carte = !etat.carte;
@@ -272,6 +334,9 @@ const rail = $('boussole-rail');
 // ---------- boucle ----------
 let precedent = performance.now();
 let image = 0;
+const ecoute = { position: new THREE.Vector3(), avant: new THREE.Vector3(), haut: new THREE.Vector3() };
+const tmpQ = new THREE.Quaternion();
+
 function boucle() {
   const maintenant = performance.now();
   const dt = Math.min(0.05, (maintenant - precedent) / 1000);
@@ -279,27 +344,28 @@ function boucle() {
   const temps = maintenant / 1000;
   image++;
 
+  let centre = monde.depart;
+  let pas = false, surface = 'herbe', course = false;
   if (etat.enJeu && joueur) {
     const v = joueur.maj(dt);
+    habitants.repousser(joueur.pos);
     personnage.animer(dt, v, joueur.auSol, temps);
-    joueur.majCamera(dt);
-    ambiance.suivre(joueur.pos);
+    pas = personnage.pas;
+    course = v > 4;
+    const surEstrade = monde.collisions.dessus(joueur.pos.x, joueur.pos.z, joueur.pos.y) > hauteurSol(joueur.pos.x, joueur.pos.z) + 0.1;
+    surface = surfaceSous(joueur.pos.x, joueur.pos.z, surEstrade);
+    if (etat.cinema) cinema.maj(dt);
+    else joueur.majCamera(dt);
+    centre = joueur.pos;
 
     const proche = poi.maj(joueur.pos, temps);
-    if (proche !== etat.lieuProche) {
-      etat.lieuProche = proche;
-      if (proche && !etat.panneau) {
-        $('invite-titre').textContent = proche.titre;
-        $('invite').hidden = false;
-      } else {
-        $('invite').hidden = true;
-      }
-    }
+    if (proche !== etat.lieuProche) etat.lieuProche = proche;
+    const afficher = !!proche && !etat.panneau && !etat.cinema;
+    if (afficher) $('invite-titre').textContent = proche.titre;
+    if ($('invite').hidden === afficher) $('invite').hidden = !afficher;
 
-    // cap de la caméra, en degrés depuis le nord
     const cap = (THREE.MathUtils.radToDeg(Math.atan2(Math.sin(joueur.lacet), -Math.cos(joueur.lacet))) + 360) % 360;
     rail.style.transform = `translateX(${-(cap + 360) * 3}px)`;
-
     if (image % 3 === 0) carte.dessinerMini(joueur.pos, joueur.orientation, decouverts);
     if (etat.carte && image % 6 === 0) carte.dessinerGrande(joueur.pos, joueur.orientation, decouverts);
   } else if (poi) {
@@ -307,24 +373,78 @@ function boucle() {
     const a = temps * 0.05;
     camera.position.set(monde.depart.x - 20 + Math.cos(a) * 6, monde.depart.y + 9, monde.depart.z + Math.sin(a) * 10);
     camera.lookAt(monde.depart.x + 40, monde.depart.y + 3, monde.depart.z);
-    ambiance.suivre(monde.depart);
     poi.maj(monde.depart, temps);
   }
+
+  ambiance.suivre(centre);
+  rendu.ombres.maj();
+  const vent = son.vent ?? 1;
+  herbe.maj(camera.position.distanceTo(centre) < 80 ? camera.position : centre, temps, vent);
+  vegetation.temps.value = temps;
+  nuages.maj(temps, ambiance, camera.position);
+  habitants.maj(dt, temps, etat.enJeu ? joueur?.pos : null);
   fumees?.maj(dt);
-  renderer.render(scene, camera);
+  if (image % 120 === 0) rendu.preparerScene(scene);
+
+  if (son.pret) {
+    ecoute.position.copy(camera.position);
+    camera.getWorldDirection(ecoute.avant);
+    ecoute.haut.set(0, 1, 0).applyQuaternion(camera.getWorldQuaternion(tmpQ));
+    son.maj(ecoute, {
+      dt, jour: ambiance.jour, joueur: etat.enJeu && joueur ? joueur.pos : camera.position,
+      foyers: monde.foyers, frappes: habitants.frappes, animaux: habitants.animaux,
+      pas: pas && !etat.cinema, surface, course,
+    });
+  }
+  rendu.rendre();
+  surveillerFluidite(dt);
 }
+
+/**
+ * Mesure la fluidité pendant les 12 premières secondes de jeu. Sous 22 images par seconde,
+ * on propose de baisser la qualité d'un cran (le choix est retenu pour les visites suivantes).
+ */
+const fluidite = { temps: 0, images: 0, fait: false };
+function surveillerFluidite(dt) {
+  if (fluidite.fait || !etat.enJeu || etat.cinema) return;
+  fluidite.temps += dt;
+  fluidite.images++;
+  if (fluidite.temps < 12) return;
+  fluidite.fait = true;
+  const ips = fluidite.images / fluidite.temps;
+  const plusBas = qualiteInferieure(nomQualite);
+  if (ips < 22 && plusBas) {
+    ecrireQualite(plusBas);
+    $('alerte-qualite-texte').textContent = `La visite tourne à ${Math.round(ips)} images par seconde. La qualité « ${QUALITES[plusBas].nom.toLowerCase()} » sera plus fluide.`;
+    $('alerte-qualite').hidden = false;
+  }
+}
+$('alerte-qualite-appliquer').addEventListener('click', () => location.reload());
+$('alerte-qualite-fermer').addEventListener('click', () => { ecrireQualite(nomQualite); $('alerte-qualite').hidden = true; });
 
 window.addEventListener('resize', () => {
   if (!renderer) return;
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
+  rendu.redimensionner();
   if (etat.carte) dimensionnerCarte();
 });
+
+// accès de débogage, uniquement avec ?debug dans l'adresse
+if (new URLSearchParams(location.search).has('debug')) {
+  window.__corent = {
+    get joueur() { return joueur; }, get poi() { return poi; }, get monde() { return monde; },
+    get ambiance() { return ambiance; }, get son() { return son; }, get rendu() { return rendu; },
+    get habitants() { return habitants; }, camera: () => camera,
+    arreter: () => renderer.setAnimationLoop(null), image: () => { boucle(); return document.getElementById('scene').toDataURL('image/jpeg', 0.85); }, cinema: () => cinema, lancerCinematique: (id) => lancerCinematique(poi.lieux.find((l) => l.id === id)),
+  };
+}
 
 preparerChoix();
 charger().catch((err) => {
   console.error(err);
-  $('chargement-etape').textContent = 'Le chargement a échoué. Vérifiez que votre navigateur prend en charge WebGL 2 puis rechargez la page.';
+  $('chargement-etape').textContent = 'Le chargement a échoué. Essayez la qualité basse ou vérifiez que votre navigateur prend en charge WebGL 2, puis rechargez la page.';
   $('chargement').classList.add('erreur');
+  $('chargement-basse').hidden = false;
 });
+$('chargement-basse').addEventListener('click', () => { ecrireQualite('basse'); location.reload(); });
